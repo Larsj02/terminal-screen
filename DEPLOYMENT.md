@@ -4,6 +4,11 @@
 
 Your Terminal Screenshot Generator is ready for production. Here are the fastest ways to get it online:
 
+> **Repository Clean-up Complete!** ✅
+> - Added proper `.gitignore` (excludes `node_modules/`, `dist/`, etc.)
+> - Removed previously tracked build artifacts from git history
+> - All deployment configurations ready
+
 ### Option 1: GitHub Pages (Free & Easy)
 1. Push your code to a GitHub repository
 2. Go to repository Settings > Pages
