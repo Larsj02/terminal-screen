@@ -42,13 +42,11 @@
                   placeholder="Terminal"
                 />
               </div>
-              
-              <div class="control-group">
+                <div class="control-group">
                 <label class="control-label">
                   <i class="mdi mdi-palette"></i>
                   Theme
-                </label>
-                <select v-model="selectedTheme" class="select-input">
+                </label>                <select v-model="selectedTheme" class="select-input">
                   <option value="material">Material</option>
                   <option value="dark">Dark</option>
                   <option value="light">Light</option>
@@ -64,6 +62,7 @@
                   <option value="one-dark">One Dark</option>
                   <option value="cyberpunk">Cyberpunk</option>
                   <option value="retro">Retro Green</option>
+                  <option value="custom">Custom</option>
                 </select>
               </div>              <div class="control-group">
                 <label class="control-label">
@@ -81,7 +80,18 @@
                   <option value="18">18px</option>
                 </select>
               </div>
-                <div class="control-group">
+              
+              <div class="customize-colors-group" v-if="selectedTheme === 'custom'">
+                <button 
+                  @click="openCustomThemeModal" 
+                  class="btn btn-secondary"
+                >
+                  <i class="mdi mdi-palette"></i>
+                  Customize Colors
+                </button>
+              </div>
+              
+              <div class="control-group">
                 <label class="control-label">
                   <i class="mdi mdi-resize"></i>
                   Width (px)
@@ -183,8 +193,349 @@
               </button>
             </div>
           </div>
-        </section>
-      </main>
+        </section>      </main>
+    </div>
+
+    <!-- Custom Theme Modal -->
+    <div v-if="showCustomThemeModal" class="modal-overlay" @click="closeCustomThemeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3><i class="mdi mdi-palette"></i> Customize Theme Colors</h3>
+          <button @click="closeCustomThemeModal" class="btn-close">
+            <i class="mdi mdi-close"></i>
+          </button>
+        </div>
+          <div class="modal-body">
+          <div class="preset-themes">
+            <h4>Quick Presets</h4>
+            <div class="preset-buttons">
+              <button @click="applyPreset('dark')" class="btn-preset">Dark Terminal</button>
+              <button @click="applyPreset('light')" class="btn-preset">Light Terminal</button>
+              <button @click="applyPreset('matrix')" class="btn-preset">Matrix Green</button>
+              <button @click="applyPreset('cyberpunk')" class="btn-preset">Cyberpunk</button>
+              <button @click="applyPreset('dracula')" class="btn-preset">Dracula</button>
+              <button @click="applyPreset('monokai')" class="btn-preset">Monokai</button>
+            </div>
+          </div>
+          
+          <div class="color-sections">
+            <!-- Terminal Background -->
+            <div class="color-section">
+              <h4>Terminal Background</h4>
+              <div class="color-controls">                <div class="color-control">
+                  <label>Background</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.terminalBackground" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.terminalBackground" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Header Background</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.terminalHeaderBackground" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.terminalHeaderBackground" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Default Text</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.defaultText" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.defaultText" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prompt Colors -->
+            <div class="color-section">
+              <h4>Prompt Colors</h4>
+              <div class="color-controls">                <div class="color-control">
+                  <label>User@Host</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.promptUser" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.promptUser" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Path</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.promptPath" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.promptPath" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Command</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.command" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.command" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>            <!-- File Permissions -->
+            <div class="color-section">
+              <h4>File Permissions</h4>
+              <div class="color-controls">
+                <div class="color-control">
+                  <label>Directory</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.directoryPerm" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.directoryPerm" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Sticky Directory</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.stickyDirPerm" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.stickyDirPerm" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Symlink</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.symlinkPerm" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.symlinkPerm" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Executable</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.execPerm" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.execPerm" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- File Details -->
+            <div class="color-section">
+              <h4>File Details</h4>
+              <div class="color-controls">
+                <div class="color-control">
+                  <label>User</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.user" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.user" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Group</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.group" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.group" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Size</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.size" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.size" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Date</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.date" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.date" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filenames -->
+            <div class="color-section">
+              <h4>Filenames</h4>
+              <div class="color-controls">
+                <div class="color-control">
+                  <label>Directory Name</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.directoryName" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.directoryName" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Symlink Name</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.symlinkName" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.symlinkName" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+                <div class="color-control">
+                  <label>Symlink Target</label>
+                  <div class="color-input-group">
+                    <input 
+                      type="color" 
+                      v-model="customTheme.symlinkTarget" 
+                      class="color-input"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="customTheme.symlinkTarget" 
+                      class="color-text-input"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+          <div class="modal-footer">
+          <div class="footer-left">
+            <button @click="exportCustomTheme" class="btn btn-secondary">
+              <i class="mdi mdi-download"></i>
+              Export Theme
+            </button>
+            <label class="btn btn-secondary file-input-wrapper">
+              <i class="mdi mdi-upload"></i>
+              Import Theme
+              <input 
+                type="file" 
+                @change="importCustomTheme" 
+                accept=".json"
+                class="file-input"
+                ref="fileInput"
+              />
+            </label>
+          </div>
+          <div class="footer-right">
+            <button @click="resetCustomTheme" class="btn btn-secondary">
+              <i class="mdi mdi-restart"></i>
+              Reset to Default
+            </button>
+            <button @click="closeCustomThemeModal" class="btn btn-primary">
+              <i class="mdi mdi-check"></i>
+              Apply Colors
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -229,9 +580,29 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
       terminalWidth: 600,
       terminalHeight: 400,
       autoScaleWidth: false,
-      autoScaleHeight: false
+      autoScaleHeight: false,
+      showCustomThemeModal: false,
+      customTheme: {
+        terminalBackground: '#0d1117',
+        terminalHeaderBackground: '#161b22',
+        defaultText: '#e6edf3',
+        promptUser: '#00ff00',
+        promptPath: '#0080ff',
+        command: '#ffffff',
+        directoryPerm: '#00ffff',
+        stickyDirPerm: '#ffff00',
+        symlinkPerm: '#ff00ff',
+        execPerm: '#00ff00',
+        user: '#ffff00',
+        group: '#ffff00',
+        size: '#00ffff',
+        date: '#888888',
+        directoryName: '#0080ff',
+        symlinkName: '#00ffff',
+        symlinkTarget: '#ffff00'
+      }
     }
-  },  computed: {
+  },computed: {
     formattedOutput() {
       if (!this.terminalInput.trim()) return ''
       
@@ -247,8 +618,29 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
         styles.minWidth = `${this.terminalWidth}px`
       }
       
+      // Apply custom theme styles when custom theme is selected
+      if (this.selectedTheme === 'custom') {
+        styles['--custom-terminal-bg'] = this.customTheme.terminalBackground
+        styles['--custom-terminal-header-bg'] = this.customTheme.terminalHeaderBackground
+        styles['--custom-default-text'] = this.customTheme.defaultText
+        styles['--custom-prompt-user'] = this.customTheme.promptUser
+        styles['--custom-prompt-path'] = this.customTheme.promptPath
+        styles['--custom-command'] = this.customTheme.command
+        styles['--custom-directory-perm'] = this.customTheme.directoryPerm
+        styles['--custom-sticky-dir-perm'] = this.customTheme.stickyDirPerm
+        styles['--custom-symlink-perm'] = this.customTheme.symlinkPerm
+        styles['--custom-exec-perm'] = this.customTheme.execPerm
+        styles['--custom-user'] = this.customTheme.user
+        styles['--custom-group'] = this.customTheme.group
+        styles['--custom-size'] = this.customTheme.size
+        styles['--custom-date'] = this.customTheme.date
+        styles['--custom-directory-name'] = this.customTheme.directoryName
+        styles['--custom-symlink-name'] = this.customTheme.symlinkName
+        styles['--custom-symlink-target'] = this.customTheme.symlinkTarget
+      }
+      
       return styles
-    },    terminalContentStyles() {
+    },terminalContentStyles() {
       const baseStyles = {
         fontSize: this.fontSize + 'px'
       }
@@ -427,10 +819,251 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
-      } catch (error) {
-        console.error('Error downloading screenshot:', error)
+      } catch (error) {        console.error('Error downloading screenshot:', error)
         alert('Error downloading screenshot. Please try again.')
       }
+    },
+
+    openCustomThemeModal() {
+      this.showCustomThemeModal = true
+    },
+
+    closeCustomThemeModal() {
+      this.showCustomThemeModal = false
+    },    resetCustomTheme() {
+      this.customTheme = {
+        terminalBackground: '#0d1117',
+        terminalHeaderBackground: '#161b22',
+        defaultText: '#e6edf3',
+        promptUser: '#00ff00',
+        promptPath: '#0080ff',
+        command: '#ffffff',
+        directoryPerm: '#00ffff',
+        stickyDirPerm: '#ffff00',
+        symlinkPerm: '#ff00ff',
+        execPerm: '#00ff00',
+        user: '#ffff00',
+        group: '#ffff00',
+        size: '#00ffff',
+        date: '#888888',
+        directoryName: '#0080ff',
+        symlinkName: '#00ffff',
+        symlinkTarget: '#ffff00'
+      }
+    },
+
+    applyPreset(presetName) {
+      const presets = {
+        dark: {
+          terminalBackground: '#1e1e1e',
+          terminalHeaderBackground: '#333333',
+          defaultText: '#ffffff',
+          promptUser: '#00ff00',
+          promptPath: '#0080ff',
+          command: '#ffffff',
+          directoryPerm: '#00ffff',
+          stickyDirPerm: '#ffff00',
+          symlinkPerm: '#ff00ff',
+          execPerm: '#00ff00',
+          user: '#ffff00',
+          group: '#ffff00',
+          size: '#00ffff',
+          date: '#888888',
+          directoryName: '#0080ff',
+          symlinkName: '#00ffff',
+          symlinkTarget: '#ffff00'
+        },
+        light: {
+          terminalBackground: '#ffffff',
+          terminalHeaderBackground: '#f0f0f0',
+          defaultText: '#000000',
+          promptUser: '#008000',
+          promptPath: '#0000ff',
+          command: '#000000',
+          directoryPerm: '#008080',
+          stickyDirPerm: '#b8860b',
+          symlinkPerm: '#800080',
+          execPerm: '#008000',
+          user: '#b8860b',
+          group: '#b8860b',
+          size: '#008080',
+          date: '#666666',
+          directoryName: '#0000ff',
+          symlinkName: '#008080',
+          symlinkTarget: '#b8860b'
+        },
+        matrix: {
+          terminalBackground: '#000000',
+          terminalHeaderBackground: '#001100',
+          defaultText: '#00ff00',
+          promptUser: '#00ff00',
+          promptPath: '#00aa00',
+          command: '#00ff00',
+          directoryPerm: '#00ff00',
+          stickyDirPerm: '#88ff88',
+          symlinkPerm: '#00ff00',
+          execPerm: '#00ff00',
+          user: '#00ff00',
+          group: '#00ff00',
+          size: '#00ff00',
+          date: '#006600',
+          directoryName: '#00ff00',
+          symlinkName: '#00ff00',
+          symlinkTarget: '#88ff88'
+        },
+        cyberpunk: {
+          terminalBackground: '#0a0a0a',
+          terminalHeaderBackground: '#1a0033',
+          defaultText: '#00ff41',
+          promptUser: '#ff0080',
+          promptPath: '#00ffff',
+          command: '#00ff41',
+          directoryPerm: '#ff00ff',
+          stickyDirPerm: '#80ff00',
+          symlinkPerm: '#ff00ff',
+          execPerm: '#ff0080',
+          user: '#80ff00',
+          group: '#80ff00',
+          size: '#00ffff',
+          date: '#ff4080',
+          directoryName: '#00ffff',
+          symlinkName: '#ff4080',
+          symlinkTarget: '#80ff00'
+        },
+        dracula: {
+          terminalBackground: '#282a36',
+          terminalHeaderBackground: '#44475a',
+          defaultText: '#f8f8f2',
+          promptUser: '#50fa7b',
+          promptPath: '#8be9fd',
+          command: '#f8f8f2',
+          directoryPerm: '#bd93f9',
+          stickyDirPerm: '#f1fa8c',
+          symlinkPerm: '#ff79c6',
+          execPerm: '#50fa7b',
+          user: '#f1fa8c',
+          group: '#f1fa8c',
+          size: '#8be9fd',
+          date: '#6272a4',
+          directoryName: '#8be9fd',
+          symlinkName: '#ff79c6',
+          symlinkTarget: '#f1fa8c'
+        },
+        monokai: {
+          terminalBackground: '#272822',
+          terminalHeaderBackground: '#3e3d32',
+          defaultText: '#f8f8f2',
+          promptUser: '#a6e22e',
+          promptPath: '#66d9ef',
+          command: '#f8f8f2',
+          directoryPerm: '#ae81ff',
+          stickyDirPerm: '#e6db74',
+          symlinkPerm: '#f92672',
+          execPerm: '#a6e22e',
+          user: '#e6db74',
+          group: '#e6db74',
+          size: '#66d9ef',
+          date: '#75715e',
+          directoryName: '#66d9ef',
+          symlinkName: '#f92672',
+          symlinkTarget: '#e6db74'
+        }
+      }
+        if (presets[presetName]) {
+        this.customTheme = { ...presets[presetName] }
+      }
+    },    exportCustomTheme() {
+      const themeName = prompt('Enter a name for this theme:', 'My Custom Theme')
+      if (!themeName) return // User cancelled
+      
+      const themeData = {
+        name: themeName,
+        version: '1.0',
+        created: new Date().toISOString(),
+        generator: 'Terminal Screenshot Generator',
+        colors: { ...this.customTheme }
+      }
+      
+      const dataStr = JSON.stringify(themeData, null, 2)
+      const blob = new Blob([dataStr], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${themeName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-theme.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      URL.revokeObjectURL(url)
+    },
+
+    importCustomTheme(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      
+      if (!file.name.endsWith('.json')) {
+        alert('Please select a JSON file.')
+        return
+      }
+      
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const themeData = JSON.parse(e.target.result)
+          
+          // Validate the theme data structure
+          if (!themeData.colors || typeof themeData.colors !== 'object') {
+            alert('Invalid theme file: Missing colors object.')
+            return
+          }
+          
+          // Check if all required color properties exist
+          const requiredColors = [
+            'terminalBackground', 'terminalHeaderBackground', 'defaultText',
+            'promptUser', 'promptPath', 'command', 'directoryPerm',
+            'stickyDirPerm', 'symlinkPerm', 'execPerm', 'user', 'group',
+            'size', 'date', 'directoryName', 'symlinkName', 'symlinkTarget'
+          ]
+          
+          const missingColors = requiredColors.filter(color => 
+            !themeData.colors.hasOwnProperty(color)
+          )
+          
+          if (missingColors.length > 0) {
+            alert(`Invalid theme file: Missing color properties: ${missingColors.join(', ')}`)
+            return
+          }
+          
+          // Validate color format (hex colors)
+          const invalidColors = requiredColors.filter(color => {
+            const colorValue = themeData.colors[color]
+            return !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(colorValue)
+          })
+          
+          if (invalidColors.length > 0) {
+            alert(`Invalid color format for: ${invalidColors.join(', ')}. Colors must be in hex format (e.g., #ff0000)`)
+            return
+          }
+          
+          // Apply the theme
+          this.customTheme = { ...themeData.colors }
+          alert(`Theme "${themeData.name || 'Imported Theme'}" imported successfully!`)
+          
+        } catch (error) {
+          console.error('Theme import error:', error)
+          alert('Error reading theme file. Please make sure it\'s a valid JSON file.')
+        }
+      }
+      
+      reader.onerror = () => {
+        alert('Error reading file.')
+      }
+      
+      reader.readAsText(file)
+      
+      // Reset the file input
+      event.target.value = ''
     }
   }
 }
@@ -588,6 +1221,11 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.customize-colors-group {
+  grid-column: 1 / -1;
+  margin: 8px 0;
 }
 
 .control-label {
@@ -764,6 +1402,296 @@ input:checked + .toggle-label:before {
   box-shadow: 0 6px 16px rgba(45, 164, 78, 0.4);
 }
 
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: rgba(22, 27, 34, 0.95);
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+  max-width: 800px;
+  max-height: 90vh;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #30363d;
+  background: rgba(13, 17, 23, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-header h3 i {
+  color: #1f6feb;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: #7d8590;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close:hover {
+  background: rgba(125, 133, 144, 0.1);
+  color: #e6edf3;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.preset-themes {
+  background: rgba(13, 17, 23, 0.3);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.preset-themes h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #30363d;
+}
+
+.preset-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.btn-preset {
+  padding: 8px 12px;
+  background: rgba(31, 111, 235, 0.1);
+  color: #1f6feb;
+  border: 1px solid #1f6feb;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-preset:hover {
+  background: rgba(31, 111, 235, 0.2);
+  transform: translateY(-1px);
+}
+
+.color-sections {
+  display: grid;
+  gap: 24px;
+}
+
+.color-section {
+  background: rgba(13, 17, 23, 0.3);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.color-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #30363d;
+}
+
+.color-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.color-control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-control label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e6edf3;
+}
+
+.color-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.color-input {
+  width: 40px;
+  height: 32px;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.color-input::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+.color-text-input {
+  padding: 6px 8px;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  transition: border-color 0.2s ease;
+  flex: 1;
+}
+
+.color-text-input:focus {
+  outline: none;
+  border-color: #1f6feb;
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  border-top: 1px solid #30363d;
+  background: rgba(13, 17, 23, 0.5);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-left,
+.footer-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.file-input-wrapper {
+  position: relative;
+  cursor: pointer;
+  width: auto !important;
+  transition: all 0.2s ease;
+}
+
+.file-input-wrapper:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+}
+
+.file-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.modal-footer .btn {
+  min-width: 120px;
+}
+
+/* Responsive modal design */
+@media (max-width: 768px) {
+  .modal-content {
+    max-width: 95%;
+    max-height: 95vh;
+  }
+  
+  .color-controls {
+    grid-template-columns: 1fr;
+  }
+  
+  .preset-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+    .modal-footer {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .footer-left,
+  .footer-right {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .modal-footer .btn {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .preset-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Terminal Preview Container */
 .terminal-container {
   margin-bottom: 16px;
@@ -896,6 +1824,15 @@ input:checked + .toggle-label:before {
 }
 
 /* Theme-specific styles */
+.theme-custom .terminal-content {
+  background: var(--custom-terminal-bg, #0d1117);
+  color: var(--custom-default-text, #e6edf3);
+}
+
+.theme-custom .terminal-header {
+  background: var(--custom-terminal-header-bg, #161b22);
+}
+
 .theme-dark .terminal-content {
   background: #1e1e1e;
   color: #ffffff;
@@ -1065,6 +2002,21 @@ input:checked + .toggle-label:before {
 :deep(.symlink-target) { color: #ffff00; font-style: italic; }
 
 /* Theme-specific color overrides */
+.theme-custom :deep(.prompt-user) { color: var(--custom-prompt-user, #00ff00); font-weight: bold; }
+.theme-custom :deep(.prompt-path) { color: var(--custom-prompt-path, #0080ff); font-weight: bold; }
+.theme-custom :deep(.command) { color: var(--custom-command, #ffffff); }
+.theme-custom :deep(.permissions.dir-perm) { color: var(--custom-directory-perm, #00ffff); font-weight: bold; }
+.theme-custom :deep(.permissions.sticky-dir-perm) { color: var(--custom-sticky-dir-perm, #ffff00); font-weight: bold; background-color: rgba(255, 255, 0, 0.1); }
+.theme-custom :deep(.permissions.link-perm) { color: var(--custom-symlink-perm, #ff00ff); font-weight: bold; }
+.theme-custom :deep(.permissions.exec-perm) { color: var(--custom-exec-perm, #00ff00); font-weight: bold; }
+.theme-custom :deep(.user) { color: var(--custom-user, #ffff00); }
+.theme-custom :deep(.group) { color: var(--custom-group, #ffff00); }
+.theme-custom :deep(.size) { color: var(--custom-size, #00ffff); }
+.theme-custom :deep(.date) { color: var(--custom-date, #888888); }
+.theme-custom :deep(.filename.directory) { color: var(--custom-directory-name, #0080ff); font-weight: bold; }
+.theme-custom :deep(.symlink-name) { color: var(--custom-symlink-name, #00ffff); font-weight: bold; }
+.theme-custom :deep(.symlink-target) { color: var(--custom-symlink-target, #ffff00); font-style: italic; }
+
 .theme-light :deep(.prompt-user) { color: #008000; }
 .theme-light :deep(.prompt-path) { color: #0000ff; }
 .theme-light :deep(.filename.directory) { color: #0000ff; }
