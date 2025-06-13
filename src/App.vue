@@ -29,18 +29,18 @@
                 class="terminal-input"
                 rows="12"
               ></textarea>
-            </div>
-            
-            <div class="controls-grid">
-              <div class="control-group">
+            </div>            <div class="controls-grid">
+              <div class="control-group title-group">
                 <label class="control-label">
-                  <i class="mdi mdi-clock-outline"></i>
-                  Show timestamp
+                  <i class="mdi mdi-format-title"></i>
+                  Terminal Title
                 </label>
-                <div class="toggle-switch">
-                  <input type="checkbox" v-model="showTimestamp" id="timestamp-toggle" />
-                  <label for="timestamp-toggle" class="toggle-label"></label>
-                </div>
+                <input 
+                  type="text" 
+                  v-model="terminalTitle" 
+                  class="text-input"
+                  placeholder="Terminal"
+                />
               </div>
               
               <div class="control-group">
@@ -166,11 +166,8 @@
                     <span class="window-btn yellow"></span>
                     <span class="window-btn green"></span>
                   </div>
-                  <div class="terminal-title">Terminal</div>
+                  <div class="terminal-title">{{ terminalTitle }}</div>
                 </div>                <div class="terminal-content" :style="terminalContentStyles">
-                  <div v-if="showTimestamp" class="timestamp">
-                    {{ currentTimestamp }}
-                  </div>
                   <pre v-html="formattedOutput" class="terminal-output" :style="{ fontSize: fontSize + 'px' }"></pre>
                 </div>
               </div>
@@ -227,7 +224,7 @@ drwxr-xr-x  20 root root    4096 Jun 13 09:45 .
 drwxr-xr-x   7 root root     140 Jun 13 09:45 run
 drwxr-xr-x  81 root root    4096 Jun 13 09:45 etc
 lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
-      showTimestamp: false,
+      terminalTitle: 'Terminal',
       fontSize: 12,
       terminalWidth: 600,
       terminalHeight: 400,
@@ -235,14 +232,11 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
       autoScaleHeight: false
     }
   },  computed: {
-    currentTimestamp() {
-      return new Date().toLocaleString()
-    },
     formattedOutput() {
       if (!this.terminalInput.trim()) return ''
       
       return this.parseTerminalOutput(this.terminalInput)
-    },    terminalStyles() {
+    },terminalStyles() {
       const styles = {}
       
       if (this.autoScaleWidth) {
@@ -586,6 +580,10 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
   grid-column: 1 / -1;
 }
 
+.title-group {
+  grid-column: 1 / -1;
+}
+
 .control-group {
   display: flex;
   flex-direction: column;
@@ -669,6 +667,29 @@ input:checked + .toggle-label:before {
   outline: none;
   border-color: #1f6feb;
   box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
+}
+
+/* Text Input */
+.text-input {
+  padding: 8px 12px;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #1f6feb;
+  box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
+}
+
+.text-input::placeholder {
+  color: #7d8590;
 }
 
 /* Number Input */
