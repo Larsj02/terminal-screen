@@ -1,13 +1,26 @@
 {
-  "name": "terminal-screen",
+  "name": "terminal-screenshot-generator",
   "version": "1.0.0",
-  "description": "Vue.js app for generating screenshots from terminal output",
+  "description": "A beautiful web application for creating professional terminal output screenshots. Perfect for Linux assignments, documentation, and presentations.",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve": "vite preview --port 3000",
+    "lint": "echo 'Linting would go here'"
   },
+  "keywords": [
+    "terminal",
+    "screenshot",
+    "linux",
+    "command-line",
+    "education",
+    "documentation",
+    "vue"
+  ],
+  "author": "Lars",
+  "license": "MIT",
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "html2canvas": "^1.4.1",
