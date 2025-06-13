@@ -90,6 +90,50 @@
                   Customize Colors
                 </button>
               </div>
+
+              <div class="font-control-group" :class="{ 'custom-font-layout': selectedFont === 'custom' }">
+                <div class="font-dropdown">
+                  <label class="control-label">
+                    <i class="mdi mdi-format-font"></i>
+                    Font Family
+                  </label>
+                  <select v-model="selectedFont" class="select-input">
+                    <option value="jetbrains">JetBrains Mono</option>
+                    <option value="fira">Fira Code</option>
+                    <option value="source">Source Code Pro</option>
+                    <option value="consolas">Consolas</option>
+                    <option value="monaco">Monaco</option>
+                    <option value="menlo">Menlo</option>
+                    <option value="roboto">Roboto Mono</option>
+                    <option value="ubuntu">Ubuntu Mono</option>
+                    <option value="inconsolata">Inconsolata</option>
+                    <option value="cascadia">Cascadia Code</option>
+                    <option value="custom">Custom Font</option>
+                  </select>
+                </div>
+                
+                <div class="font-upload" v-if="selectedFont === 'custom'">
+                  <label class="control-label">
+                    <i class="mdi mdi-upload"></i>
+                    Upload Font
+                  </label>
+                  <label class="btn btn-secondary file-input-wrapper">
+                    <i class="mdi mdi-file-upload"></i>
+                    Choose File
+                    <input 
+                      type="file" 
+                      @change="uploadCustomFont" 
+                      accept=".woff,.woff2,.ttf,.otf"
+                      class="file-input"
+                      ref="fontFileInput"
+                    />
+                  </label>
+                  <div v-if="customFontName" class="custom-font-info">
+                    <i class="mdi mdi-check-circle"></i>
+                    {{ customFontName }}
+                  </div>
+                </div>
+              </div>
               
               <div class="control-group">
                 <label class="control-label">
@@ -178,7 +222,7 @@
                   </div>
                   <div class="terminal-title">{{ terminalTitle }}</div>
                 </div>                <div class="terminal-content" :style="terminalContentStyles">
-                  <pre v-html="formattedOutput" class="terminal-output" :style="{ fontSize: fontSize + 'px' }"></pre>
+                  <pre v-html="formattedOutput" class="terminal-output" :style="{ fontSize: fontSize + 'px', fontFamily: fontFamily }"></pre>
                 </div>
               </div>
             </div>
@@ -577,6 +621,9 @@ drwxr-xr-x  81 root root    4096 Jun 13 09:45 etc
 lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
       terminalTitle: 'Terminal',
       fontSize: 12,
+      selectedFont: 'jetbrains',
+      customFontName: '',
+      customFontFamily: '',
       terminalWidth: 600,
       terminalHeight: 400,
       autoScaleWidth: false,
@@ -607,7 +654,25 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
       if (!this.terminalInput.trim()) return ''
       
       return this.parseTerminalOutput(this.terminalInput)
-    },terminalStyles() {
+    },
+      fontFamily() {
+      const fontMap = {
+        jetbrains: "'JetBrains Mono', 'Consolas', 'Monaco', monospace",
+        fira: "'Fira Code', 'JetBrains Mono', 'Consolas', monospace",
+        source: "'Source Code Pro', 'Consolas', 'Monaco', monospace",
+        consolas: "'Consolas', 'Courier New', monospace",
+        monaco: "'Monaco', 'Consolas', 'Courier New', monospace",
+        menlo: "'Menlo', 'Monaco', 'Consolas', monospace",
+        roboto: "'Roboto Mono', 'Consolas', 'Monaco', monospace",
+        ubuntu: "'Ubuntu Mono', 'Consolas', 'Monaco', monospace",
+        inconsolata: "'Inconsolata', 'Consolas', 'Monaco', monospace",
+        cascadia: "'Cascadia Code', 'Cascadia Mono', 'Consolas', monospace",
+        custom: this.customFontFamily || "'JetBrains Mono', monospace"
+      }
+      return fontMap[this.selectedFont] || fontMap.jetbrains
+    },
+    
+    terminalStyles() {
       const styles = {}
       
       if (this.autoScaleWidth) {
@@ -639,10 +704,10 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
         styles['--custom-symlink-target'] = this.customTheme.symlinkTarget
       }
       
-      return styles
-    },terminalContentStyles() {
+      return styles    },terminalContentStyles() {
       const baseStyles = {
-        fontSize: this.fontSize + 'px'
+        fontSize: this.fontSize + 'px',
+        fontFamily: this.fontFamily
       }
       
       if (this.autoScaleHeight) {
@@ -1061,9 +1126,64 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
       }
       
       reader.readAsText(file)
+        // Reset the file input
+      event.target.value = ''
+    },    uploadCustomFont(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      
+      // Check if file is a font file
+      const validExtensions = ['.woff', '.woff2', '.ttf', '.otf']
+      const fileExtension = '.' + file.name.split('.').pop().toLowerCase()
+      
+      if (!validExtensions.includes(fileExtension)) {
+        alert('Please select a valid font file (.woff, .woff2, .ttf, .otf)')
+        return
+      }
+      
+      // Create a unique font family name
+      const fontName = file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '')
+      const fontFamilyName = `CustomFont_${fontName}_${Date.now()}`
+      
+      // Create a URL for the font file
+      const fontUrl = URL.createObjectURL(file)
+      
+      // Create CSS for the custom font
+      const fontFace = `
+        @font-face {
+          font-family: '${fontFamilyName}';
+          src: url('${fontUrl}') format('${this.getFontFormat(fileExtension)}');
+          font-display: swap;
+          font-weight: normal;
+          font-style: normal;
+        }
+      `
+      
+      // Add the font face to the document
+      const styleElement = document.createElement('style')
+      styleElement.textContent = fontFace
+      styleElement.id = `custom-font-${Date.now()}`
+      document.head.appendChild(styleElement)
+      
+      // Update the custom font data
+      this.customFontName = file.name
+      this.customFontFamily = `'${fontFamilyName}', 'JetBrains Mono', monospace`
       
       // Reset the file input
       event.target.value = ''
+      
+      // Notify user
+      alert(`Font "${file.name}" uploaded successfully!`)
+    },
+
+    getFontFormat(extension) {
+      const formatMap = {
+        '.woff': 'woff',
+        '.woff2': 'woff2', 
+        '.ttf': 'truetype',
+        '.otf': 'opentype'
+      }
+      return formatMap[extension] || 'truetype'
     }
   }
 }
@@ -1226,6 +1346,46 @@ lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
 .customize-colors-group {
   grid-column: 1 / -1;
   margin: 8px 0;
+}
+
+.font-control-group {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.font-control-group.custom-font-layout {
+  grid-template-columns: 1fr 1fr;
+}
+
+.font-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.font-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.custom-font-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: rgba(45, 164, 78, 0.1);
+  border: 1px solid rgba(45, 164, 78, 0.3);
+  border-radius: 4px;
+  font-size: 11px;
+  color: #2da44e;
+  margin-top: 4px;
+}
+
+.custom-font-info i {
+  color: #2da44e;
 }
 
 .control-label {
