@@ -1,90 +1,193 @@
 <template>
   <div class="app">
-    <header class="header">
-      <h1>Terminal Screenshot Generator</h1>
-      <p>Paste your terminal output below and generate a beautiful screenshot</p>
-    </header>
-
-    <div class="content">
-      <div class="input-section">
-        <h2>Terminal Output</h2>
-        <textarea
-          v-model="terminalInput"
-          placeholder="Paste your terminal output here..."
-          class="terminal-input"
-          rows="10"
-        ></textarea>
-        
-        <div class="controls">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="showTimestamp" />
-            Show timestamp
-          </label>
-            <select v-model="selectedTheme" class="theme-select">
-            <option value="dark">Dark Theme</option>
-            <option value="light">Light Theme</option>
-            <option value="ubuntu">Ubuntu</option>
-            <option value="matrix">Matrix</option>
-            <option value="dracula">Dracula</option>
-            <option value="monokai">Monokai</option>
-            <option value="solarized-dark">Solarized Dark</option>
-            <option value="solarized-light">Solarized Light</option>
-            <option value="nord">Nord</option>
-            <option value="gruvbox-dark">Gruvbox Dark</option>
-            <option value="gruvbox-light">Gruvbox Light</option>
-            <option value="one-dark">One Dark</option>
-            <option value="material">Material</option>
-            <option value="cyberpunk">Cyberpunk</option>
-            <option value="retro">Retro Green</option>          </select>
-          
-          <div class="font-controls">
-            <label style="color: white;">Font Size:</label>
-            <select v-model="fontSize" class="font-select">
-              <option value="12">12px</option>
-              <option value="13">13px</option>
-              <option value="14">14px</option>
-              <option value="15">15px</option>
-              <option value="16">16px</option>
-              <option value="18">18px</option>
-            </select>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-content">
+          <div class="header-icon">
+            <i class="mdi mdi-monitor-screenshot"></i>
           </div>
-          
-          <button @click="generateScreenshot" class="generate-btn" :disabled="!terminalInput.trim()">
-            Generate Screenshot
-          </button>
-        </div>
-      </div>
-
-      <div class="preview-section">
-        <h2>Preview</h2>
-        <div 
-          ref="terminalPreview" 
-          class="terminal-preview" 
-          :class="`theme-${selectedTheme}`"
-        >
-          <div class="terminal-header">
-            <div class="terminal-buttons">
-              <span class="btn red"></span>
-              <span class="btn yellow"></span>
-              <span class="btn green"></span>
-            </div>
-            <div class="terminal-title">Terminal</div>
-          </div>          <div class="terminal-content" :style="{ fontSize: fontSize + 'px' }">
-            <div v-if="showTimestamp" class="timestamp">
-              {{ currentTimestamp }}
-            </div>
-            <pre v-html="formattedOutput" class="terminal-output" :style="{ fontSize: fontSize + 'px' }"></pre>
+          <div class="header-text">
+            <h1>Terminal Screenshot Generator</h1>
+            <p>Create beautiful screenshots of your terminal output</p>
           </div>
         </div>
-        
-        <button 
-          v-if="formattedOutput" 
-          @click="downloadScreenshot" 
-          class="download-btn"
-        >
-          Download Screenshot
-        </button>
-      </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Input Section -->
+        <section class="input-card">
+          <div class="card-header">
+            <h2><i class="mdi mdi-console"></i> Terminal Input</h2>
+          </div>
+          <div class="card-content">
+            <div class="input-field">
+              <textarea
+                v-model="terminalInput"
+                placeholder="Paste your terminal output here..."
+                class="terminal-input"
+                rows="12"
+              ></textarea>
+            </div>
+            
+            <div class="controls-grid">
+              <div class="control-group">
+                <label class="control-label">
+                  <i class="mdi mdi-clock-outline"></i>
+                  Show timestamp
+                </label>
+                <div class="toggle-switch">
+                  <input type="checkbox" v-model="showTimestamp" id="timestamp-toggle" />
+                  <label for="timestamp-toggle" class="toggle-label"></label>
+                </div>
+              </div>
+              
+              <div class="control-group">
+                <label class="control-label">
+                  <i class="mdi mdi-palette"></i>
+                  Theme
+                </label>
+                <select v-model="selectedTheme" class="select-input">
+                  <option value="material">Material</option>
+                  <option value="dark">Dark</option>
+                  <option value="light">Light</option>
+                  <option value="ubuntu">Ubuntu</option>
+                  <option value="matrix">Matrix</option>
+                  <option value="dracula">Dracula</option>
+                  <option value="monokai">Monokai</option>
+                  <option value="solarized-dark">Solarized Dark</option>
+                  <option value="solarized-light">Solarized Light</option>
+                  <option value="nord">Nord</option>
+                  <option value="gruvbox-dark">Gruvbox Dark</option>
+                  <option value="gruvbox-light">Gruvbox Light</option>
+                  <option value="one-dark">One Dark</option>
+                  <option value="cyberpunk">Cyberpunk</option>
+                  <option value="retro">Retro Green</option>
+                </select>
+              </div>              <div class="control-group">
+                <label class="control-label">
+                  <i class="mdi mdi-format-size"></i>
+                  Font Size
+                </label>
+                <select v-model="fontSize" class="select-input">
+                  <option value="10">10px</option>
+                  <option value="11">11px</option>
+                  <option value="12">12px</option>
+                  <option value="13">13px</option>
+                  <option value="14">14px</option>
+                  <option value="15">15px</option>
+                  <option value="16">16px</option>
+                  <option value="18">18px</option>
+                </select>
+              </div>
+                <div class="control-group">
+                <label class="control-label">
+                  <i class="mdi mdi-resize"></i>
+                  Width (px)
+                </label>
+                <input 
+                  type="number" 
+                  v-model.number="terminalWidth" 
+                  class="number-input"
+                  min="300"
+                  max="1200"
+                  step="50"
+                  :disabled="autoScaleWidth"
+                />
+              </div>
+              
+              <div class="control-group">
+                <label class="control-label">
+                  <i class="mdi mdi-resize"></i>
+                  Height (px)
+                </label>
+                <input 
+                  type="number" 
+                  v-model.number="terminalHeight" 
+                  class="number-input"
+                  min="200"
+                  max="800"
+                  step="50"
+                  :disabled="autoScaleHeight"
+                />
+              </div>
+              
+              <div class="control-group">
+                <label class="control-label">
+                  <i class="mdi mdi-arrow-expand-horizontal"></i>
+                  Auto-scale width
+                </label>
+                <div class="toggle-switch">
+                  <input type="checkbox" v-model="autoScaleWidth" id="autoscale-width-toggle" />
+                  <label for="autoscale-width-toggle" class="toggle-label"></label>
+                </div>
+              </div>
+              
+              <div class="control-group">
+                <label class="control-label">
+                  <i class="mdi mdi-arrow-expand-vertical"></i>
+                  Auto-scale height
+                </label>
+                <div class="toggle-switch">
+                  <input type="checkbox" v-model="autoScaleHeight" id="autoscale-height-toggle" />
+                  <label for="autoscale-height-toggle" class="toggle-label"></label>
+                </div>
+              </div>
+              
+              <div class="control-group action-group">
+                <button 
+                  @click="generateScreenshot" 
+                  class="btn btn-primary"
+                  :disabled="!terminalInput.trim()"
+                >
+                  <i class="mdi mdi-camera"></i>
+                  Generate Screenshot
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Preview Section -->
+        <section class="preview-card">
+          <div class="card-header">
+            <h2><i class="mdi mdi-eye"></i> Preview</h2>
+          </div>
+          <div class="card-content">            <div class="terminal-container">
+              <div 
+                ref="terminalPreview" 
+                class="terminal-preview" 
+                :class="`theme-${selectedTheme}`"
+                :style="terminalStyles"
+              ><div class="terminal-header">
+                  <div class="terminal-buttons">
+                    <span class="window-btn red"></span>
+                    <span class="window-btn yellow"></span>
+                    <span class="window-btn green"></span>
+                  </div>
+                  <div class="terminal-title">Terminal</div>
+                </div>                <div class="terminal-content" :style="terminalContentStyles">
+                  <div v-if="showTimestamp" class="timestamp">
+                    {{ currentTimestamp }}
+                  </div>
+                  <pre v-html="formattedOutput" class="terminal-output" :style="{ fontSize: fontSize + 'px' }"></pre>
+                </div>
+              </div>
+            </div>
+            
+            <div v-if="formattedOutput" class="actions">
+              <button 
+                @click="downloadScreenshot" 
+                class="btn btn-success"
+              >
+                <i class="mdi mdi-download"></i>
+                Download Screenshot
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 </template>
@@ -123,13 +226,15 @@ drwxr-xr-x  20 root root    4096 Jun 13 09:45 ..
 drwxr-xr-x  20 root root    4096 Jun 13 09:45 .
 drwxr-xr-x   7 root root     140 Jun 13 09:45 run
 drwxr-xr-x  81 root root    4096 Jun 13 09:45 etc
-lars@DESKTOP-1M2J5TN:~$`,
-      selectedTheme: 'dark',
+lars@DESKTOP-1M2J5TN:~$`,      selectedTheme: 'material',
       showTimestamp: false,
-      fontSize: 14
+      fontSize: 12,
+      terminalWidth: 600,
+      terminalHeight: 400,
+      autoScaleWidth: false,
+      autoScaleHeight: false
     }
-  },
-  computed: {
+  },  computed: {
     currentTimestamp() {
       return new Date().toLocaleString()
     },
@@ -137,6 +242,40 @@ lars@DESKTOP-1M2J5TN:~$`,
       if (!this.terminalInput.trim()) return ''
       
       return this.parseTerminalOutput(this.terminalInput)
+    },    terminalStyles() {
+      const styles = {}
+      
+      if (this.autoScaleWidth) {
+        styles.width = 'auto'
+        styles.minWidth = 'fit-content'
+      } else {
+        styles.width = `${this.terminalWidth}px`
+        styles.minWidth = `${this.terminalWidth}px`
+      }
+      
+      return styles
+    },    terminalContentStyles() {
+      const baseStyles = {
+        fontSize: this.fontSize + 'px'
+      }
+      
+      if (this.autoScaleHeight) {
+        return {
+          ...baseStyles,
+          height: 'auto',
+          minHeight: '200px',
+          overflow: 'visible',
+          whiteSpace: this.autoScaleWidth ? 'pre' : 'pre-wrap'
+        }
+      } else {
+        return {
+          ...baseStyles,
+          height: `${this.terminalHeight - 50}px`, // Subtract header height
+          minHeight: `${this.terminalHeight - 50}px`,
+          overflow: 'auto',
+          whiteSpace: this.autoScaleWidth ? 'pre' : 'pre-wrap'
+        }
+      }
     }
   },
   methods: {
@@ -304,147 +443,348 @@ lars@DESKTOP-1M2J5TN:~$`,
 </script>
 
 <style scoped>
+/* Base Layout */
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 30px;
-  color: white;
-}
-
-.header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
+.app-container {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 24px;
 }
 
-.input-section, .preview-section {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 25px;
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+/* Header */
+.header {
+  margin-bottom: 32px;
 }
 
-.input-section h2, .preview-section h2 {
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+.header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #1f6feb 0%, #0969da 100%);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(31, 111, 235, 0.3);
+}
+
+.header-icon i {
+  font-size: 28px;
   color: white;
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.5rem;
+}
+
+.header-text h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #e6edf3;
+  letter-spacing: -0.025em;
+}
+
+.header-text p {
+  font-size: 16px;
+  color: #7d8590;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Main Content */
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Cards */
+.input-card,
+.preview-card {
+  background: rgba(22, 27, 34, 0.8);
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #30363d;
+  background: rgba(13, 17, 23, 0.5);
+}
+
+.card-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-header h2 i {
+  color: #1f6feb;
+}
+
+.card-content {
+  padding: 24px;
+}
+
+/* Input Field */
+.input-field {
+  margin-bottom: 24px;
 }
 
 .terminal-input {
   width: 100%;
-  height: 300px;
-  background: #1e1e1e;
-  color: #00ff00;
-  border: 2px solid #333;
+  min-height: 280px;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
   border-radius: 8px;
-  padding: 15px;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1.4;
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  line-height: 1.45;
   resize: vertical;
-  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .terminal-input:focus {
   outline: none;
-  border-color: #00ff00;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  border-color: #1f6feb;
+  box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
 }
 
-.controls {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  margin-top: 15px;
-  flex-wrap: wrap;
+.terminal-input::placeholder {
+  color: #7d8590;
 }
 
-.checkbox-label {
-  color: white;
+/* Controls Grid */
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: end;
+}
+
+.action-group {
+  grid-column: 1 / -1;
+}
+
+.control-group {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  cursor: pointer;
 }
 
-.theme-select, .font-select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.control-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e6edf3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.control-label i {
+  color: #7d8590;
+  font-size: 14px;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-label {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #30363d;
+  border-radius: 12px;
+  transition: 0.2s ease;
+}
+
+.toggle-label:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: #7d8590;
+  border-radius: 50%;
+  transition: 0.2s ease;
+}
+
+input:checked + .toggle-label {
+  background: #1f6feb;
+}
+
+input:checked + .toggle-label:before {
+  transform: translateX(20px);
   background: white;
-  font-size: 14px;
 }
 
-.font-controls {
-  display: flex;
+/* Select Input */
+.select-input {
+  padding: 8px 12px;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.select-input:focus {
+  outline: none;
+  border-color: #1f6feb;
+  box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
+}
+
+/* Number Input */
+.number-input {
+  padding: 8px 12px;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: #1f6feb;
+  box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
+}
+
+.number-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #161b22;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-
-.font-controls label {
-  font-size: 14px;
-}
-
-.generate-btn, .download-btn {
-  padding: 10px 20px;
-  background: linear-gradient(45deg, #00ff00, #00cc00);
-  color: black;
+  padding: 12px 20px;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
+  border-radius: 8px;
+  font-family: inherit;
   font-size: 14px;
-  transition: all 0.3s ease;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  min-height: 44px;
 }
 
-.generate-btn:hover, .download-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
-}
-
-.generate-btn:disabled {
-  background: #666;
+.btn:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  transform: none !important;
 }
 
-.download-btn {
-  margin-top: 15px;
-  width: 100%;
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+.btn-primary {
+  background: linear-gradient(135deg, #1f6feb 0%, #0969da 100%);
   color: white;
+  box-shadow: 0 4px 12px rgba(31, 111, 235, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(31, 111, 235, 0.4);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #2da44e 0%, #1a7f37 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(45, 164, 78, 0.3);
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-success:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(45, 164, 78, 0.4);
+}
+
+/* Terminal Preview Container */
+.terminal-container {
+  margin-bottom: 16px;
+  overflow-x: auto;
+  overflow-y: visible;
+  max-width: 100%;
+}
+
+.terminal-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.terminal-container::-webkit-scrollbar-track {
+  background: rgba(48, 54, 61, 0.3);
+  border-radius: 4px;
+}
+
+.terminal-container::-webkit-scrollbar-thumb {
+  background: rgba(125, 133, 144, 0.5);
+  border-radius: 4px;
+}
+
+.terminal-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(125, 133, 144, 0.8);
 }
 
 .terminal-preview {
-  background: #1e1e1e;
+  background: #0d1117;
+  border: 1px solid #30363d;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  margin-bottom: 15px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  min-width: fit-content;
 }
 
 .terminal-header {
-  background: #333;
-  padding: 10px 15px;
+  background: #161b22;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid #30363d;
 }
 
 .terminal-buttons {
@@ -452,54 +792,96 @@ lars@DESKTOP-1M2J5TN:~$`,
   gap: 8px;
 }
 
-.btn {
+/* Terminal Window Buttons (red, yellow, green circles) */
+.window-btn {
   width: 12px;
   height: 12px;
   border-radius: 50%;
+  border: none;
+  cursor: pointer;
 }
 
-.btn.red { background: #ff5f57; }
-.btn.yellow { background: #ffbd2e; }
-.btn.green { background: #28ca42; }
+.window-btn.red { background: #ff5f57; }
+.window-btn.yellow { background: #ffbd2e; }
+.window-btn.green { background: #28ca42; }
 
 .terminal-title {
-  color: #ccc;
-  font-size: 14px;
+  color: #7d8590;
+  font-size: 12px;
   font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .terminal-content {
-  padding: 20px;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1.4;
-  background: #1e1e1e;
-  color: #ffffff;
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  background: #0d1117;
+  color: #e6edf3;
   min-height: 200px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* Custom scrollbar for terminal content */
+.terminal-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.terminal-content::-webkit-scrollbar-track {
+  background: rgba(48, 54, 61, 0.3);
+  border-radius: 4px;
+}
+
+.terminal-content::-webkit-scrollbar-thumb {
+  background: rgba(125, 133, 144, 0.5);
+  border-radius: 4px;
+}
+
+.terminal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(125, 133, 144, 0.8);
+}
+
+.terminal-content::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .terminal-output {
   margin: 0;
-  white-space: pre;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1.4;
+  white-space: pre-wrap;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  line-height: 1.45;
   letter-spacing: 0;
   word-spacing: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .timestamp {
-  color: #888;
-  font-size: 12px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #333;
-  padding-bottom: 5px;
+  color: #7d8590;
+  font-size: 11px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 8px;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
 }
 
 /* Theme-specific styles */
 .theme-dark .terminal-content {
   background: #1e1e1e;
   color: #ffffff;
+}
+
+.theme-dark .terminal-header {
+  background: #333;
 }
 
 .theme-light .terminal-content {
@@ -646,9 +1028,6 @@ lars@DESKTOP-1M2J5TN:~$`,
 :deep(.permissions.exec-perm) { color: #00ff00; font-weight: bold; }
 :deep(.permissions.file-perm) { color: #ffffff; }
 
-/* Special styling for sticky bit directories like /tmp */
-:deep(.permissions.dir-perm:contains("t")) { color: #ffff00; font-weight: bold; }
-
 :deep(.link-count) { color: #888888; }
 :deep(.user) { color: #ffff00; }
 :deep(.group) { color: #ffff00; }
@@ -774,19 +1153,82 @@ lars@DESKTOP-1M2J5TN:~$`,
 .theme-retro :deep(.symlink-name) { color: #66ff66; }
 .theme-retro :deep(.symlink-target) { color: #ccff99; }
 
-@media (max-width: 768px) {
-  .content {
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .main-content {
     grid-template-columns: 1fr;
     gap: 20px;
   }
   
-  .header h1 {
-    font-size: 2rem;
+  .controls-grid {
+    grid-template-columns: 1fr;
   }
   
-  .controls {
+  .action-group {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 16px;
+  }
+  
+  .header-content {
     flex-direction: column;
-    align-items: stretch;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .header-text h1 {
+    font-size: 24px;
+  }
+  
+  .header-text p {
+    font-size: 14px;
+  }
+  
+  .card-content {
+    padding: 16px;
+  }
+  
+  .controls-grid {
+    gap: 12px;
+  }
+  
+  .btn {
+    padding: 10px 16px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+  
+  .terminal-content {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-icon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .header-icon i {
+    font-size: 24px;
+  }
+  
+  .header-text h1 {
+    font-size: 20px;
+  }
+  
+  .btn {
+    padding: 8px 14px;
+    font-size: 11px;
+    min-height: 36px;
+  }
+  
+  .terminal-content {
+    max-height: 250px;
   }
 }
 </style>
